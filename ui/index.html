@@ -1,0 +1,265 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>绿色出行 | 首页</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="public/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="public/bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="public/dist/css/AdminLTE.css">
+	<link rel="stylesheet" href="public/dist/css/skins/skin-blue.min.css">
+	<link rel="stylesheet" href="public/css/list.css">
+  	<script src="public/dist/js/myjs.js"></script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header"></header>
+		<aside class="main-sidebar"></aside>
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>首页</h1>
+			</section>
+            
+			<!-- Main content -->
+			<section class="content container-fluid">
+				<div class="list">
+					<div class="list-title">剩余可租车辆</div>
+					<div class="list-table">
+						<table>
+							<thead>
+								<tr>
+									<th>车辆所属公司</th>
+									<th>车牌号</th>
+									<th>车型</th>
+									<th>座位数</th>
+									<th>电池容量</th>
+									<th>预计可行驶里程</th>
+									<th>计费规则描述（元/分钟）</th>
+									<th>当前停在的充电桩</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="table-data">
+							</tbody>
+						</table>
+					</div>
+				</div>
+            </section>
+            <section class="content container-fluid">
+                    <div class="list">
+                        <div class="list-title">正在租用车辆(注：同一时间只能租一辆)</div>
+                        <div class="list-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>订单Id</th>
+                                        <th>车牌号</th>
+                                        <th>租车时间</th>
+                                        <th>已租用时间</th>
+                                        <th>已用金额(元)</th>
+                                        <th>可还至充电桩</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rent-data">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+			<!-- /.content -->
+		</div>
+		<footer class="main-footer"></footer>
+	</div>
+	<script src="public/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="public/dist/js/adminlte.js"></script>
+   <script>
+	let headerResidue=["compName","plateNum","carModel","seating","capacity","expectedMileage","billingRulesDesc","parkingchargingPile"];
+	let headerRenting=["orderId","plateNum","startTime","duringTime","money","pile"];
+    let selectHtml=``;
+		(function(){
+/**加载header、sider和footer*/
+            $(".main-header").load("./mainheader.html");
+			$(".main-sidebar").load("./mainsider.html");
+//获取指定名称的cookie的值
+            function getCookie(objName){
+				var arrStr = document.cookie.split("; ");   
+				for (var i = 0; i < arrStr.length; i++) {   
+					var temp = arrStr[i].split("=");   
+					if (temp[0] == objName)   
+						return unescape(temp[1]);   
+				}   
+			} 
+		var name = getCookie("name");
+		var compNum = getCookie("compNum");
+		var compName = getCookie("compName");
+//promise程序执行先后？还需判断程序是否执行
+		Promise.resolve().then(
+			function(){
+				$.ajax({//充电桩位置、编号
+				type:"POST",
+				url:"/carInfo/useChargingPileList",
+				dataType:'json',
+				data:{},
+				success: function(res){
+					if(res.states=="200"){
+						for(var value of res.status){
+							selectHtml+=`<option  value="${value.PileNum}">${value.PilePlace};编号:${value.PileNum}</option>`
+						}
+					}else if(res.states=="400"){
+						alert(res.error)
+					}	
+				}
+			})
+			}).then(
+				function(){surplusCar ()
+			}).then(
+				function(){rentingCar()
+			})
+		})()
+//剩余可租车辆列表
+		function surplusCar (){
+			$.ajax({
+				type:"post",
+				url:"/carInfo/carUseList",
+				dataType:'json',
+				data:"",
+				success: function(res){
+					if(res!="" && res.length!=0){
+						let tableData=res;//将数据插入表格中
+						let html=`<tr>`;
+						for(var i=0;i<tableData.length;i++){
+							i>0?html+=`</tr><tr>`:"";
+							for(var j=0;j<headerResidue.length;j++){
+								if(tableData[i][headerResidue[j]]==undefined || tableData[i][headerResidue[j]]=='' || tableData[i][headerResidue[j]]==null){
+									html+=`<td>-</td>`;
+								}else{
+									html+=`<td>${tableData[i][headerResidue[j]]}</td>`;
+								}
+							}
+							html+=`<td>
+								<i class="glyphicon glyphicon-paste text-blue" title="租车" onclick="rentCar('${tableData[i].carNum}','${tableData[i].parkingchargingPile}')" ></i>
+								</td></tr>`
+							// for(var key in tableData[i]){
+							// 	if(key=="edit"){
+							// 	html+=`<td>
+							// 	<i class="glyphicon glyphicon-paste text-blue" title="租车" onclick="rentCar('${tableData[i].carNum}','${tableData[i].parkingchargingPile}')" ></i>
+							// 	</td></tr>`;
+							// 	}else if (key=="carNum"){
+
+							// 	}else if (key=="compNum"){
+
+							// 	}else{
+							// 	html+=`<td>${tableData[i][key]}</td>`
+							// 	}
+							// }
+						}
+						$("#table-data").html(html)
+						console.log(html)
+					}else{
+						$("#table-data").html("<tr style='text-align:center'><td colspan='9'>暂无数据</td></tr>")
+					}	
+				}
+			});
+		}
+//正在租用车辆列表
+		function rentingCar (){
+			$.ajax({
+				type:"post",
+				url:"/carInfo/carUsingList",
+				dataType:'json',
+				data:{
+					username:name,
+				},
+				success: function(res){
+					if(res!="" && res.length!=0){
+						let rentData=res;//将数据插入表格中
+						let renthtml=`<tr>`;
+						for(var i=0;i<rentData.length;i++){
+							i>0?renthtml+=`</tr><tr>`:"";
+							for(var j=0;j<headerRenting.length;j++){
+								if(rentData[i][headerRenting[j]]==undefined || rentData[i][headerRenting[j]]=='' || rentData[i][headerRenting[j]]==null){
+									renthtml+=`<td>-</td>`;
+								}else if(headerRenting[j]=="pile"){
+									renthtml+=`<td><select id="selected_num" style="border:1px solid #eee;width:100%;">${selectHtml}</select></td>`
+								}else{
+									renthtml+=`<td>${rentData[i][headerRenting[j]]}</td>`;
+								}
+							}
+							renthtml+=`<td>
+								<i class="glyphicon glyphicon-copy text-blue" onclick="returnCar('${rentData[i].orderId}')" title="还车"></i>
+								</td></tr>`
+							// for(var key in rentData[i]){
+							// 	if(key=="edit"){
+							// 		renthtml+=`<td>
+							// 			<i class="glyphicon glyphicon-copy text-blue" onclick="returnCar('${rentData[i].orderId}')" title="还车"></i>
+							// 			</td></tr>`;
+							// 	}else if(key=="pile"){
+							// 		renthtml+=`<td><select id="selected_num" style="border:1px solid #eee;width:100%;">${selectHtml}</select></td>`;
+							// 		}
+							// 	else{
+							// 		renthtml+=`<td>${rentData[i][key]}</td>`
+							// 	}
+							// }
+						}
+						$("#rent-data").html(renthtml)
+						console.log(renthtml)
+					}else{
+						$("#rent-data").html("<tr style='text-align:center'><td colspan='7'>暂无数据</td></tr>")
+					}	 
+				}
+			});
+		}
+//租车按钮
+		function rentCar (carNum,pileNum){
+			$.ajax({
+				type:"post",
+				url:"/carInfo/orderStart",
+				dataType:'json',
+				data:{   
+					"carNum":carNum,
+					"phone":name,
+					"pileNum":pileNum,
+					"compNum":compNum,
+				},
+				success: function(res){
+					if(res.states==600){
+                        alert(res.status)
+                    }                    
+                    else if(res.states==200){
+						alert("租车成功")
+					}else{
+						alert("租车失败")
+					}	
+				}
+			});
+		}
+//还车按钮
+		function returnCar(orderId,pileNum){
+            var obj = document.getElementById("selected_num");
+        	var index = obj.selectedIndex; // 选中索引
+			var pileNum = obj.options[index].value; // 选中值
+			$.ajax({
+				type:"post",
+				url:"/carInfo/orderEnd",
+				dataType:'json',
+				data:{  
+					orderId:orderId ,
+					pileNum:pileNum ,
+				},
+				success: function(res){
+					if(res){
+						alert("还车成功")
+					}else{
+						alert("还车失败")
+					}	
+				}
+			});
+		}
+   </script>
+</body>
+</html>
+
+

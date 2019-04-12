@@ -1,0 +1,192 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>绿色出行 | 添加充电桩</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="public/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="public/bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="public/dist/css/AdminLTE.css">
+	<link rel="stylesheet" href="public/dist/css/skins/skin-blue.min.css">
+	<link rel="stylesheet" href="public/css/add.css">
+	<script src="public/dist/js/myjs.js"></script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header"></header>
+		<aside class="main-sidebar"></aside>
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>充电桩管理<small>>充电桩编辑</small></h1>
+			</section>
+			<!-- Main content -->
+			<section class="content container-fluid">
+				<div class="list">
+					<div class="list-title">
+						<a class="active">充电桩编辑</a>
+					</div>
+					<div class="list-table">
+						<table>
+							<tbody>
+								<tr class="label-title"><td>充电桩信息</td></tr>
+								<tr>
+                                <!--<td>充电桩唯一编号</td>
+									<td><input placeholder="请输入"id="pileNum"/></td>-->
+                                    <td>充电桩所处位置</td>
+									<td><input placeholder="请输入" id="pilePlace"/></td>
+									<td>充电桩描述</td>
+									<td><input placeholder="请输入" id="pileDesc"/></td>
+									<td>所处位置坐标</td>
+									<td><input placeholder="请输入" id="position"/></td>
+								</tr>
+
+								<tr class="label-title"><td>充电桩状态</td></tr>
+								<tr>
+                                				<!--<td>当前停车的车号</td>
+									<td><input placeholder="请输入"id ="parkingNum"/></td>-->
+	                            <td>状态标记</td>
+                                <td><select style="border:1px solid #eee;width:100%;"  id="stateMark">
+                                        <option value='1'>空闲</option>
+                                        <option value='2'>使用中</option>
+                                        <option value='3'>维护</option>
+										</select></td>
+								</tr>
+								<!-- <tr>电池信息</tr>
+								<tr>
+							
+								
+					
+								</tr> -->
+							</tbody>
+						</table>
+					</div>
+					<a class="btn btn-blue" href="/chargingpile.html">返回</a>
+					<button class="btn btn-blue" id="sureSend">确定</button>
+				</div>
+			</section>
+			<!-- /.content -->
+		</div>
+		<footer class="main-footer"></footer>
+	</div>
+	<script src="public/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="public/dist/js/adminlte.js"></script>
+  <script>
+    let url=null;
+    var pileNum;
+    var recordTime;
+        (function(){
+/**加载header、sider和footer*/
+            $(".main-header").load("./mainheader.html");
+			$(".main-sidebar").load("./mainsider.html");
+//获取指定名称的cookie的值   
+			function getCookie(objName){
+				var arrStr = document.cookie.split("; ");   
+				for (var i = 0; i < arrStr.length; i++) {   
+					var temp = arrStr[i].split("=");   
+					if (temp[0] == objName)   
+						return unescape(temp[1]);   
+				}   
+			} 
+		var compNum = getCookie("compNum"); 
+		var compName = getCookie("compName"); 
+//判断url是否带参数
+			window.location.href.indexOf('?')!=-1?(url=window.location.href
+			.substring(window.location.href.indexOf('?') + 1)
+			.split('&')
+			.map((query) => query.split('='))
+			.reduce((params, pairs) => (params[pairs[0]] = pairs[1] || '', params), {}))
+			:url=null
+//url不为null及编辑，获取详情
+			url!=null?
+			$.ajax({
+				type:"POST",
+				url:"/carInfo/charingpileDetail",
+				dataType:'json',
+				data:{PileNum:url.id},
+				success: function(res){
+					if(res.states=="200"){
+						let detailData=res.status;
+						for(var key in detailData){
+							detailData[key]!="" && detailData[key]!=null && detailData[key].length!=0?
+							$("#"+key).val(detailData[key]):$("#"+key).val("-")
+						}
+                        pileNum = url.id;
+                        recordTime = detailData.RecordTime;
+					}if(res.states=="400"){
+						alert(res.error)
+					}	
+				}
+			}):""
+		})()
+		let sendData={
+            compNum:"",
+            compName:"",
+			pilePlace:"", //充电桩所处位置
+			pileNum:"", //充电桩编号
+			pileDesc:"", //充电桩描述
+			position:"",//所处位置坐标,
+            stateMark:"",
+            parkingNum:"",
+			billingRulesDesc:"",//计费规则描述
+            recordTime:"", //上链时间
+		}
+//确认按钮
+		$("#sureSend").click(function(e){
+			e.preventDefault();
+			for(var key in sendData){
+                if(key=="stateMark"){
+                    if($("#stateMark").val()==null){
+                        sendData[key]="";
+                    }else{
+                    sendData[key]=$("#stateMark").val(); 
+                    }
+                }
+                else{
+                
+                    sendData[key]=$("#"+key).val();
+                }
+			}
+            sendData.compNum=compNum;
+            sendData.compName=compName;
+            if(url!=null ){
+                sendData.pileNum=pileNum;
+                sendData.recordTime = recordTime;
+            }
+
+
+
+//url为null及添加，反及编辑
+			url==null?
+			$.ajax({
+				type:"POST",
+				url:"/carInfo/addChargingPile",
+				dataType:'json',
+				data:sendData,
+				success: function(res){
+					if(res.data!=""){
+						alert("添加成功");
+						window.history.go(-1);
+					}else{
+						alert("添加失败")
+					}	
+				}
+			}):$.ajax({
+				type:"POST",
+				url:"/carInfo/updateChargingPile",
+				dataType:'json',
+				data:sendData,
+				success: function(res){
+					if(res.data!=""){
+						alert("更新成功");
+						window.history.go(-1);
+					}else{
+						alert("更新失败")
+					}	
+				}
+			})
+		})
+  </script>
+</body>
+</html>

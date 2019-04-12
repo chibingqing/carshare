@@ -1,0 +1,83 @@
+﻿<!-- sidebar: style can be found in sidebar.less -->
+<section class="sidebar">
+
+  <style>
+		.highlight{color:#ffffff;font-size:16px;}
+	</style>
+  <!-- Sidebar user panel (optional) -->
+  <!-- <div class="user-panel">
+
+    <div class="pull-left info">
+      <p>Logo</p> -->
+      <!-- Status -->
+      <!-- <a href="#"><i class="fa fa-circle text-success"></i></a>
+    </div>
+  </div> -->
+  <!-- Sidebar Menu -->
+  <ul class="sidebar-menu" data-widget="tree" style="margin-top:50px;" id="menu-change">
+    <!-- <li>
+      <a href="../transfer/transfer.html">
+        <i class="glyphicon glyphicon-cloud text-green"><span class="pull-right-container"></i>
+          <span class="target rongziVerifying">转账</span>
+      </a>
+    </li> -->
+    <!-- <li id="index">
+      <a href="../index.html">
+        <i class="glyphicon glyphicon-cloud text-green"></i>
+          <span class="target rongziVerifying">首页</span>
+      </a>
+    </li>
+    <li id="orderhistory">
+      <a href="../orderhistory.html">
+        <i class="glyphicon glyphicon-tags text-green"></i>
+          <span class="target rongziVerifying">订单历史记录</span>
+      </a>
+    </li>
+    <li id="index">
+      <a href="../car.html">
+        <i class="glyphicon glyphicon-bed text-green"></i>
+          <span class="target rongziVerifying">汽车管理</span>
+      </a>
+    </li>
+    <li id="index">
+      <a href="../chargingpile.html">
+        <i class="glyphicon glyphicon-object-align-horizontal text-green"></i>
+          <span class="target rongziVerifying">充电桩管理</span>
+      </a>
+    </li> -->
+  </ul>
+  <script>
+  function getUrlPath(){//获取url字段，给menu加active样式并区分用户和管理员
+      let href = window.location.href.split("?")[0];
+      let hrefArr = href.split("/");
+      let url= `${hrefArr[hrefArr.length-1]}`;
+      let html=``;
+      if(url.indexOf("index")!=-1){
+          html=`<li id="index"><a href="../index.html" style="color:#fff;background-color:#000"><i class="glyphicon glyphicon-cloud text-green"></i><span class="target rongziVerifying">首页</span></a></li>
+          <li id="orderhistory"><a href="../orderhistory.html"><i class="glyphicon glyphicon-tags text-green"></i><span class="target rongziVerifying">订单历史记录</span></a></li>`;
+          $("#menu-change").html(html)
+      }else if(url.indexOf("orderhistory")!=-1){
+          html=`<li id="index"><a href="../index.html"><i class="glyphicon glyphicon-cloud text-green"></i><span class="target rongziVerifying">首页</span></a></li>
+          <li id="orderhistory"><a href="../orderhistory.html" style="color:#fff;background-color:#000"><i class="glyphicon glyphicon-tags text-green"></i><span class="target rongziVerifying">订单历史记录</span></a></li>`;
+          $("#menu-change").html(html)
+      }else if(url.indexOf("car")!=-1){
+          html=`<li id="index"><a href="../car.html" style="color:#fff;background-color:#000"><i class="glyphicon glyphicon-bed text-green"></i><span class="target rongziVerifying">汽车管理</span></a></li>
+          <li id="chargingpile"><a href="../chargingpile.html"><i class="glyphicon glyphicon-object-align-horizontal text-green"></i><span class="target rongziVerifying">充电桩管理</span></a></li>
+          <li id="record"><a href="../record.html"><i class="glyphicon glyphicon-object-align-horizontal text-green"></i><span class="target rongziVerifying">对账</span></a></li>`;
+         
+          $("#menu-change").html(html)
+      }else if(url.indexOf("pile")!=-1){
+          html=`<li id="index"><a href="../car.html"><i class="glyphicon glyphicon-bed text-green"></i><span class="target rongziVerifying">汽车管理</span></a></li>
+          <li id="chargingpile"><a href="../chargingpile.html" style="color:#fff;background-color:#000"><i class="glyphicon glyphicon-object-align-horizontal text-green"></i><span class="target rongziVerifying">充电桩管理</span></a></li>
+           <li id="record"><a href="../record.html"><i class="glyphicon glyphicon-object-align-horizontal text-green"></i><span class="target rongziVerifying">对账</span></a></li>`;
+         $("#menu-change").html(html)
+      }else if(url.indexOf("record")!=-1){
+          html=`<li id="index"><a href="../car.html"><i class="glyphicon glyphicon-bed text-green"></i><span class="target rongziVerifying">汽车管理</span></a></li>
+          <li id="chargingpile"><a href="../chargingpile.html" ><i class="glyphicon glyphicon-object-align-horizontal text-green"></i><span class="target rongziVerifying">充电桩管理</span></a></li>
+           <li id="record"><a href="../record.html"style="color:#fff;background-color:#000"><i class="glyphicon glyphicon-object-align-horizontal text-green"></i><span class="target rongziVerifying">对账</span></a></li>`;
+         $("#menu-change").html(html)
+      }
+  };
+  getUrlPath()
+  </script>
+</section>

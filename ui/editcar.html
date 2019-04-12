@@ -1,0 +1,242 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>绿色出行 | 汽车编辑</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="public/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="public/bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="public/dist/css/AdminLTE.css">
+	<link rel="stylesheet" href="public/dist/css/skins/skin-blue.min.css">
+	<link rel="stylesheet" href="public/css/add.css">
+	<script src="public/dist/js/myjs.js"></script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header"></header>
+		<aside class="main-sidebar"></aside>
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>汽车管理<small>>汽车编辑</small></h1>
+			</section>
+			<!-- Main content -->
+			<section class="content container-fluid">
+				<div class="list">
+					<div class="list-title">
+						<a class="active">汽车编辑</a>
+					</div>
+					<div class="list-table">
+						<table>
+							<tbody>
+								<tr class="label-title"><td>汽车信息</td></tr>
+								<tr>
+
+								<!--	<td>车辆唯一识别号</td>
+									<td><input placeholder="请输入" id="carNum"/></td>-->
+									<td>车牌号</td>
+									<td><input placeholder="请输入" id="plateNum" /></td>
+									<td>车型</td>
+									<td><input placeholder="请输入"id="carModel"/></td>
+									<td>座位数</td>
+									<td><input placeholder="请输入"id="seating"/></td>
+								</tr>
+								<tr class="label-title"><td>电池信息</td></tr>
+								<tr>
+									<td>电池容量</td>
+									<td><input placeholder="请输入"id="capacity"/></td>
+									<td>可用电量(%)</td>
+									<td><input placeholder="请输入"id="quantity"/></td>
+									<td>预计可行驶里程(KM)</td>
+									<td><input placeholder="请输入"id="expectedMileage"/></td>
+								</tr>
+								<tr class="label-title"><td>计费规则</td></tr>
+								<tr>
+                                <td>状态标记</td>
+									<td><select style="border:1px solid #eee;width:100%;"  id="stateMark">
+                                        <option value='1'>空闲</option>
+                                        <option value='2'>租用中</option>
+                                        <option value='3'>维护</option>
+										</select></td>
+                                <td>当前停车的充电桩</td>
+									<td style="display:flex;justify-content:space-between;align-items:center;">
+										<!-- <input placeholder="请输入"id="parkingchargingPile"/> -->
+										<select style="border:1px solid #eee;width:100%;" id="parkingchargingPile">
+										</select>
+									</td>
+									<td>计费规则描述(每分钟花费金额(元))</td>
+									<td><input placeholder="请输入" id="billingRulesDesc"/></td>
+								</tr>
+								<!-- <tr>电池信息</tr>
+								<tr>
+									
+									<td>上链时间</td>
+									<td><input placeholder="请输入"/></td>
+								</tr> -->
+							</tbody>
+						</table>
+					</div>
+					<a class="btn btn-blue" href="/car.html">返回</a>
+					<button class="btn btn-blue" id="sureSend">确定</button>
+				</div>
+			</section>
+			<!-- /.content -->
+		</div>
+		<footer class="main-footer"></footer>
+	</div>
+	<script src="public/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="public/dist/js/adminlte.js"></script>
+  <script>
+	let url=null;
+	let selectHtml=``;
+         var carNum;
+        var recordTime;
+        (function(){
+/**加载header、sider和footer*/
+            $(".main-header").load("./mainheader.html");
+			$(".main-sidebar").load("./mainsider.html");
+//判断url是否带参数
+			window.location.href.indexOf('?')!=-1?(url=window.location.href
+			.substring(window.location.href.indexOf('?') + 1)
+			.split('&')
+			.map((query) => query.split('='))
+			.reduce((params, pairs) => (params[pairs[0]] = pairs[1] || '', params), {}))
+			:url=null;
+//获取指定名称的cookie的值   
+            function getCookie(objName){
+				var arrStr = document.cookie.split("; ");   
+				for (var i = 0; i < arrStr.length; i++) {   
+					var temp = arrStr[i].split("=");   
+					if (temp[0] == objName)   
+						return unescape(temp[1]);   
+				}   
+			} 
+		var name = getCookie("name"); 
+		var compNum = getCookie("compNum"); 
+		var compName = getCookie("compName"); 
+   
+//获取充电桩位置、编号，填充下拉菜单
+			$.ajax({
+				type:"POST",
+				url:"/carInfo/useChargingPileList",
+				dataType:'json',
+				data:{},
+				success: function(res){
+					if(res.states=="200"){
+					for(var value of res.status){
+					selectHtml+=`<option name="selected_num" value="${value.PileNum}">${value.PilePlace};编号:${value.PileNum}</option>`
+					}
+					$("#parkingchargingPile").html(selectHtml);
+					}if(res.states=="400"){
+						alert(res.error)
+					}	
+				}
+			})
+//url不为null及编辑，获取详情
+			url!=null?
+			$.ajax({
+				type:"POST",
+				url:"/carInfo/carDetail",
+				dataType:'json',
+				data:{carNum:url.id},
+				success: function(res){
+					if(res.states=="200"){
+						let detailData=res.status;
+						for(var key in detailData){
+							detailData[key]!="" && detailData[key]!=null && detailData[key].length!=0?
+							$("#"+key).val(detailData[key]):$("#"+key).val("")
+						}
+                        carNum = detailData["carNum"];
+                        recordTime =detailData["recordTime"];
+					}if(res.states=="400"){
+						alert(res.error)
+					}	
+				}
+			}):""
+		})()
+		let sendData={
+            compName:"",
+            compNum:"",
+			carNum:"", //车辆唯一识别号
+			plateNum:"", //车牌号
+			carModel:"", //车型
+			seating:"",//座位数,
+			capacity:"", //电池容量
+			quantity:"", //可用电量
+			expectedMileage:"",//预计可行驶里程
+            parkingchargingPile:"",//当前停在的充电桩
+			billingRulesDesc:"",//计费规则描述
+			stateMark:"", //状态标记
+			recordTime:"" //上链时间
+		};
+//确认按钮          
+		$("#sureSend").click(function(e){
+			e.preventDefault();
+			for(var key in sendData){
+				if(key=="ParkingchargingPile"){
+                    if($('option[name="selected_num"]:checked').val()==null){
+                        sendData[key]="";
+                    }else{
+					sendData[key]=$('option[name="selected_num"]:checked').val();
+				}
+                }
+                else if(key=="compNum"){
+                    sendData[key]=compNum;
+                }
+                else if(key=="compName"){
+                    sendData[key]=compName;
+                }
+                else if(key=="StateMark"){
+                      if($("#stateMark").val()==null){
+                sendData[key]="";
+                    }else{
+                    sendData[key]=$("#stateMark").val(); 
+                }
+                }
+                else{
+					sendData[key]=$("#"+key).val();
+				}
+			}
+    if(url!=null){
+          sendData.recordTime=recordTime;
+            sendData.carNum=carNum;
+    }
+
+//url为null及添加，反及编辑
+
+			url==null?
+			$.ajax({
+				type:"POST",
+				url:"/carInfo/addCar",
+				dataType:'json',
+				data:sendData,
+				success: function(res){
+					if(res.states=="200"){
+						alert("添加成功");
+						window.history.go(-1);
+					}if(res.states=="400"){
+						alert(res.error)
+					}	
+				}
+			}):$.ajax({
+				type:"POST",
+				url:"/carInfo/updateCar",
+				dataType:'json',
+				data:sendData,
+				success: function(res){
+					if(res.states=="200"){
+						alert("更新成功");
+						window.history.go(-1);
+					}if(res.states=="400"){
+						alert(res.err)
+					}	
+				}
+			});
+            
+        
+
+		})
+  </script>
+</body>
+</html>

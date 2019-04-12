@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>绿色出行 | 汽车管理</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="public/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="public/bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="public/dist/css/AdminLTE.css">
+	<link rel="stylesheet" href="public/dist/css/skins/skin-blue.min.css">
+	<link rel="stylesheet" href="public/css/list.css">
+  	<script src="public/dist/js/myjs.js"></script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header"></header>
+		<aside class="main-sidebar"></aside>
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>对账</h1>
+			</section>
+			<!-- Main content -->
+			<section class="content container-fluid">
+				<div class="list">
+					<div class="list-title">订单列表</div>
+                   
+					<div class="list-table">
+						<table>
+							<thead>
+								<tr>
+						<th>订单ID</th>
+                                    <th>订单总额</th>
+									<th>车辆平台</th>
+									<th>车辆平台获款（元）</th>
+									<th>充电桩平台</th>
+									<th>充电桩平台获款（元）</th>
+									<th>用户平台</th>
+									<th>用户平台获款（元）</th>
+								</tr>
+							</thead>
+							<tbody id="table-data">
+							</tbody>
+						</table>
+					</div>
+                     <div class="list-title">帐号总金额：<span id = "balance"></span>元</div>
+				</div>
+			</section>
+			<!-- /.content -->
+		</div>
+		<footer class="main-footer"></footer>
+	</div>
+	<script src="public/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="public/dist/js/adminlte.js"></script>
+   <script>
+	let header=["OrderId","Money","CarCompNum","CarCompMoney","PileCompNum","PileCompMoney","CompNum","CompMoney"];
+		(function(){
+/**加载header、sider和footer*/
+            $(".main-header").load("./mainheader.html");
+			$(".main-sidebar").load("./mainsider.html");
+//获取指定名称的cookie的值			
+            function getCookie(objName){
+				var arrStr = document.cookie.split("; ");   
+				for (var i = 0; i < arrStr.length; i++) {   
+					var temp = arrStr[i].split("=");   
+					if (temp[0] == objName)   
+						return unescape(temp[1]);   
+				}   
+			} 
+		var name = getCookie("name");
+//获取订单历史记录数据
+$.ajax({
+				type:"post",
+				url:"/carInfo/getBalance",
+				dataType:'json',
+				data:{  
+					phone:name,
+				},
+				success: function(res){
+                    $("#balance").html(res.Balance);
+				}
+			});
+			$.ajax({
+				type:"post",
+				url:"/carInfo/orderRecordList",
+				dataType:'json',
+				data:{  
+					phone:name,
+				},
+				success: function(res){
+					if(res!="" && res.length!=0){
+						let tableData=res;//将数据插入表格中
+						let html=`<tr>`;
+						for(var i=0;i<tableData.length;i++){
+							i>0?html+=`</tr><tr>`:"";
+							for(var j=0;j<header.length;j++){
+								if(tableData[i][header[j]]==undefined || tableData[i][header[j]]=='' || tableData[i][header[j]]==null){
+									html+=`<td>-</td>`;
+								}else{
+									html+=`<td>${tableData[i][header[j]]}</td>`;
+								}
+							}
+							// for(var key in tableData[i]){
+							// 	if(key=="edit"){
+							// 	html+=`<td>-</td></tr>`;
+							// 	}else{
+							// 	html+=`<td>${tableData[i][key]}</td>`
+							// 	}
+							// }
+						}
+						$("#table-data").html(html)
+						console.log(html)
+					}else{
+						$("#table-data").html("<tr style='text-align:center'><td colspan='7'>暂无数据</td></tr>")
+					}	
+				}
+			});
+		})()
+   </script>
+</body>
+</html>

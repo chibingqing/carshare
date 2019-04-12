@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>绿色出行 | 登录</title>
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <link rel="stylesheet" href="public/bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="public/bower_components/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="public/dist/css/AdminLTE.min.css">
+  <style type="text/css">
+    body {
+      background: url(public/dist/img/greengo.jpeg) top center no-repeat ;
+      background-size: cover;
+      font-family: 'Microsoft YaHei', 'Avenir', Helvetica, Arial, sans-serif;
+    }
+    .a_login{
+      color: #3c8dbc;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .button_login {
+      width: 100px;
+      padding:5px;
+      background-color: #3c8dbc;
+      color: #fff;
+      border-radius:5px;
+      text-align: center;
+      vertical-align: middle;
+      border: 1px solid #3c8dbc;
+    }
+  </style>
+</head>
+<body class="hold-transition"style="height:80%">
+  <div class="login-box">
+    <div class="login-logo">
+    
+      <a style="color: #3c8dbc;">绿色出行</a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="login-box-body">
+      <!--下面是登陆页面-->
+      <form id="login_form" action="" method="post">
+ <select id="SelectTypes" class="form-control input-sm" style="font-size:15px;" >
+            <option  name="login_comp" value="" style="font-size:15px;display: none"checked > 请选择登陆平台</span></option>
+            <option  name="login_comp" value="1">挚达</span></option>
+            <option  name="login_comp" value="2">八闽</span></option>
+
+          </select>
+        <br>
+        <br>
+        <div class="form-group has-feedback">
+          <input id="login_phone" type="text" list="ide" class="form-control" placeholder="手机号" aria-describedby="basic-addon1">
+          <span class="glyphicon glyphicon-user form-control-feedback"></span>
+        </div>
+        <div class="form-group has-feedback">
+          <input id="login_password" type="password" class="form-control" placeholder="密码" aria-describedby="basic-addon1">
+          <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        </div>
+        <div class="row">
+          <div class="col-xs-8">
+            <div class="checkbox icheck">
+            </div>
+          </div>
+          <!-- /.col -->
+          <div class="col-xs-12" style="text-align:right">
+            <button type="button" class="button_login" onclick="login_fun()">登录</button>
+          </div>
+          <!-- /.col -->
+        </div>
+
+      </form>
+      <!--下面是注册页面-->
+      <form id="enroll_form" action="" method="post">
+        <div class="form-group">
+          <label for="name">注册平台</label>
+          <select id="SelectType" class="form-control input-sm" style="font-size:15px;" >
+            <option  name="register_comp" value="" style="font-size:15px;display: none"checked > 请选择注册平台</span></option>
+            <option  name="register_comp" value="1">挚达</span></option>
+            <option  name="register_comp" value="2">八闽</span></option>
+
+          </select>
+        </div>
+        <br>
+        <br>
+        <div id="addcompany" class="form-group has-feedback"></div>
+        <div class="form-group has-feedback">
+          <input id="register_phone" type="text" list="ide" class="form-control" placeholder="手机号" aria-describedby="basic-addon1">
+
+
+        </div>
+        <div class="form-group has-feedback">
+          <input id="register_password" type="password" class="form-control" placeholder="密码" aria-describedby="basic-addon1">
+        
+        </div>
+
+        <div class="form-group has-feedback">
+          <input id="register_password2" type="password" class="form-control" placeholder="确认密码" aria-describedby="basic-addon1">
+          <div class="row">
+        
+          </div>
+
+          <div class="col-xs-8">
+            <div class="checkbox icheck">
+            </div>
+             
+          </div>
+
+        <div class="form-group has-feedback">
+          <input id="register_name" type="text" class="form-control" placeholder="姓名" aria-describedby="basic-addon1">
+        </div>
+
+        <div class="form-group has-feedback">
+          <input id="register_idcard" type="text" class="form-control" placeholder="身份证" aria-describedby="basic-addon1">
+        </div>
+
+
+
+          <div class="col-xs-8">
+            <div class="checkbox icheck">
+            </div>
+             
+          </div>
+
+
+          <!-- /.col -->
+          <div class="col-xs-4">
+            <br>
+            <button type="button" class="button_login" onclick="register_fun()">注册</button>
+          </div>
+          <!-- /.col -->
+        </div>
+
+      </form>
+      <a id="enroll_link" class="a_login"><span>注册账户</span></a>
+      <a class="a_login"  id="login_link">返回登录</a>
+
+    </div>
+  </div>
+  <script src="public/bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script>
+    $(document).ready(function () {
+      $("#enroll_form,#login_link").hide();
+      $("a#showCheckMRec1").click(function () {
+        $("#checkMRec1").toggle();
+      });
+      $("a#showCheckMRec2").click(function () {
+        $("#checkMRec2").toggle();
+      });
+      $("#enroll_link").click(function () {
+        $("#enroll_form,#login_link").show();
+        $("#login_form").hide();
+        $(this).hide();
+      });
+      $("#login_link").click(function () {
+        $("#enroll_form").hide();
+        $("#login_form,#enroll_link").show();
+        $(this).hide();
+      });
+    });
+    function register_fun() {
+      if($('option[name="register_comp"]:checked').val()==""){
+        alert("请选择注册平台！");
+      }else if($('#register_phone').val()==""){
+        alert("请输入手机号！");
+      }else if($('#register_password').val()==""){
+        alert("请输入密码！");
+      }else if($('#register_password2').val()==""){
+        alert("请确认密码！");
+      }else if ($('#register_password').val() != $('#register_password2').val()) {
+        alert("两次输入的密码不一致！");
+      }else {
+        var postBody = {
+            
+          phone: $('#register_phone').val(),
+          password: $('#register_password').val(),
+          comp: $('option[name="register_comp"]:checked').val(),
+          name: $('register_name').val(),
+          idcard:$('#register_idcard').val(),
+        };
+        $.ajax({
+          type: 'POST',
+          url: '/users/register',
+          data: postBody,
+          dataType: 'json',
+          success: function (data) {
+            if (data.states == 200) {
+              alert("您已注册成功！");
+            }
+            else  if (data.states == 400) {
+              alert("您注册的用户已存在！");
+            }
+            else  if (data.states == 600) {
+              alert("注册成功！PS：此身份证在别的平台注册过");
+            }
+          }
+        });
+      }
+    }
+    function login_fun() {
+      if($('#login_phone').val()==""){
+        alert("请输入账号！");
+      }else if($('#login_password').val()==""){
+        alert("请输入密码！");
+      }
+       else if($('option[name="login_comp"]:checked').val()==""){
+        alert("请选择登陆平台！");
+      }else{
+          compNum = $('option[name="login_comp"]:checked').val()
+        var postBody = {
+          phone: $('#login_phone').val(),
+          password: $('#login_password').val(),
+          compNum:compNum
+        };
+        $.ajax({
+          type: 'POST',
+          url: '/users/login',
+          data: postBody,
+          dataType: 'json',
+          success: function (data) {
+            if (data.err != null) {
+              alert(data.err);
+            } else {
+              //添加cookie
+              document.cookie = "name="+escape(data.phone)+";";
+              document.cookie = "compNum="+escape(data.compNum)+";";
+               document.cookie = "compName="+escape(data.compName)+";";
+              data.role==1?window.location.href='/car.html':window.location.href='/index.html';
+            }
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

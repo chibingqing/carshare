@@ -1,0 +1,89 @@
+﻿
+    <!-- Logo -->
+    <a class="logo">
+      <!-- <span class="logo-mini"><small></small></span> -->
+      <span class="logo-lg"><small></small></span>
+    </a>
+
+    <!-- Header Navbar -->
+    <nav class="navbar navbar-static-top" role="navigation">
+      <!-- Sidebar toggle button-->
+      <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+        <span class="sr-only">Toggle navigation</span>
+      </a>
+      <!-- Navbar Right Menu -->
+      <div class="navbar-custom-menu">
+        <ul class="nav navbar-nav">
+
+          <!-- Tasks Menu -->
+           <li class="dropdown user user-menu">
+              <a style="cursor:default;"id ="datas"></a>
+          </li>
+             
+             
+    
+          <li>
+              <a style="cursor:default;"><span class="" >登录平台：<span  id ="compName"></span></span></a>
+          </li>
+          <!-- User Account Menu -->
+          <li class="dropdown user user-menu">
+            <!-- Menu Toggle Button -->
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <!-- The user image in the navbar-->
+              <!-- <img src="../public/dist/img/user2-160x160.jpg" class="user-image" alt="User Image"> -->
+              <!-- hidden-xs hides the username on small devices so only the image appears. -->
+              <span class="hidden-xs">您好，<span id="name"></span></span>
+            </a>
+          </li>
+          <!-- Control Sidebar Toggle Button -->
+          <li>
+            <a href="../login.html"><span class="">退出</span></a>
+          </li>
+        </ul>
+      </div>
+	    <script>
+   function getCookie(objName){//获取指定名称的cookie的值   
+	    var arrStr = document.cookie.split("; ");   
+	    for (var i = 0; i < arrStr.length; i++) {   
+	        var temp = arrStr[i].split("=");   
+	        if (temp[0] == objName)   
+	            return unescape(temp[1]);   
+	    }   
+	} 
+  var name = getCookie("name"); 
+  var compNum = getCookie("compNum"); 
+    var compName=getCookie("compName");
+    if(name !="adminA"&&name !="adminB"){
+        var html =`<span id="freezeMoney">充值押金</span>`;
+        $("#datas").html(html);
+    }
+  var a= getCookie("content");
+  console.log(a);
+  document.getElementById('name').innerHTML=name; 
+    document.getElementById('compName').innerHTML=compName; 
+    function delCookie(name){//为了删除指定名称的cookie，可以将其过期时间设定为一个过去的时间   
+    var date = new Date();   
+    date.setTime(date.getTime() - 10000);   
+    document.cookie = name + "=a; expires=" + date.toGMTString();   
+  }  
+ 
+      		$("#freezeMoney").click(function(e){
+            $.ajax({
+				type:"POST",
+				url:"/carInfo/addFreezeMoney",
+				dataType:'json',
+				data:{
+                    phone:name,
+                    compNum:compNum,
+                },
+				success: function(res){
+					if(res.states=="200"){
+                        alert(res.status);
+					}if(res.states=="400"){
+						alert(res.error)
+					}	
+				}
+			});
+  });
+</script>
+    </nav>

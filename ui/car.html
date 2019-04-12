@@ -1,0 +1,142 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>绿色出行 | 汽车管理</title>
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+	<link rel="stylesheet" href="public/bower_components/bootstrap/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="public/bower_components/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="public/dist/css/AdminLTE.css">
+	<link rel="stylesheet" href="public/dist/css/skins/skin-blue.min.css">
+	<link rel="stylesheet" href="public/css/list.css">
+  	<script src="public/dist/js/myjs.js"></script>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header"></header>
+		<aside class="main-sidebar"></aside>
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1>汽车管理</h1>
+			</section>
+			<!-- Main content -->
+			<section class="content container-fluid">
+				<div class="list">
+					<div class="list-title">汽车列表</div>
+					<div class="list-table">
+						<table>
+							<thead>
+								<tr>
+									<th>车辆标识码</th>
+									<th>车牌号</th>
+									<th>车型</th>
+									<th>座位数</th>
+									<th>电池容量</th>
+                                    <th>可用电量（%）</th>
+									<th>预计可行驶里程</th>
+									<th>计费规则描述（元/分钟）</th>
+                                    <th>当前停车的充电桩</th>
+									<th>状态标记</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody id="table-data">
+							</tbody>
+						</table>
+					</div>
+					<a class="btn btn-blue" href="/editcar.html">添加</a>
+				</div>
+			</section>
+			<!-- /.content -->
+		</div>
+		<footer class="main-footer"></footer>
+	</div>
+	<script src="public/bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="public/dist/js/adminlte.js"></script>
+   <script>
+	   let header=["carNum","plateNum","carModel","seating","capacity","quantity","expectedMileage","billingRulesDesc","parkingchargingPile","stateMark"];
+		(function(){
+/**加载header、sider和footer*/
+            $(".main-header").load("./mainheader.html");
+			$(".main-sidebar").load("./mainsider.html");
+//获取指定名称的cookie的值 			
+			function getCookie(objName){  
+				var arrStr = document.cookie.split("; ");   
+				for (var i = 0; i < arrStr.length; i++) {   
+					var temp = arrStr[i].split("=");   
+					if (temp[0] == objName)   
+						return unescape(temp[1]);   
+				}   
+			} 
+		var name = getCookie("name"); 
+		var compNum = getCookie("compNum"); 
+		var compName = getCookie("compName"); 
+//获取汽车列表数据
+			$.ajax({
+				type:"post",
+				url:"/carInfo/carList",
+				dataType:'json',
+				data:{  
+					compNum:compNum
+				},
+				success: function(res){
+					if(res!="" && res.length!=0){
+						let tableData=res;//将数据插入表格中
+						let html=`<tr>`;
+						for(var i=0;i<tableData.length;i++){
+                       
+							i>0?html+=`</tr><tr>`:"";
+							for(var j=0;j<header.length;j++){
+								if(tableData[i][header[j]]==undefined || tableData[i][header[j]]=='' || tableData[i][header[j]]==null){
+									html+=`<td>-</td>`;
+								}else{
+									html+=`<td>${tableData[i][header[j]]}</td>`;
+                                }
+                             
+							}
+							html+=`<td>
+							<a href="editcar.html?id=${tableData[i].carNum}"><i class="glyphicon glyphicon-pencil text-blue" id="edit${tableData[i].carNum}" title="更新"></i></a>
+							</td></tr>`
+							// for(var key in tableData[i]){
+							// 	if(key=="edit"){
+							// 	html+=`<td>
+							// 			<a href="editcar.html?id=${tableData[i].carNum}"><i class="glyphicon glyphicon-pencil text-blue" id="edit${tableData[i].carNum}" title="更新"></i></a>
+							// 			<i class="glyphicon glyphicon-copy text-blue" id="pile${tableData[i].carNum}" title="充电"></i>
+							// 			</td></tr>`;
+							// 	}else{
+							// 	html+=`<td>${tableData[i][key]}</td>`
+							// 	}
+							// }
+                        }
+						$("#table-data").html(html)
+						console.log($("#table-data").html);
+					}else{
+						$("#table-data").html("<tr style='text-align:center'><td colspan='11'>暂无数据</td></tr>")
+					}	
+				}
+			});
+		 })()
+//充电按钮
+		function carCharge(para){
+			$.ajax({
+				type:"post",
+				url:"/carInfo/carCharge",
+				dataType:'json',
+				data:{  
+					compNum: "", 
+					Num:"" ,
+				},
+				success: function(res){
+					if(res){
+						alert("充电成功")
+					}else{
+						alert("充电失败")
+					}	
+				}
+			});
+		}
+   </script>
+</body>
+</html>
